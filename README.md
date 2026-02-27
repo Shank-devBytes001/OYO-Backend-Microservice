@@ -47,8 +47,7 @@ A high-concurrency booking system for flights and hotels built with **Node.js**,
 ```
 booking-system/
 │
-├── .env                          # Environment variables (not committed)
-├── .env.example                  # Template for .env
+├── .env                          # Environment variables 
 ├── package.json                  # Dependencies & scripts
 ├── README.md                     # This file
 │
@@ -253,12 +252,7 @@ npm run dev
 # http://localhost:3000
 ```
 
-### Test Accounts (after seeding)
-
-| Role | Email | Password |
-|------|-------|----------|
-| Admin | admin@booking.com | admin123 |
-| User | john@example.com | user123 |
+test it
 
 ---
 
