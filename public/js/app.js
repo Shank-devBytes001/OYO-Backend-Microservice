@@ -157,6 +157,15 @@ function formatDate(dateStr) {
   });
 }
 
+function escapeAttr(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/'/g, '&#39;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 /* ═══════════════════════════════════════════════════════════
    SPA ROUTER
    Hash-based navigation. Each hash maps to a render function.
@@ -195,7 +204,9 @@ function handleRoute() {
     admin: renderAdminPage,
   };
 
-  const renderFn = routes[hash] || renderSearchPage;
+  const renderFn = Object.prototype.hasOwnProperty.call(routes, hash)
+    ? routes[hash]
+    : renderSearchPage;
   renderFn();
 }
 
@@ -262,7 +273,7 @@ async function renderSharedItem(itemId) {
           <span class="price-unit">/ ${item.type === 'flight' ? 'seat' : 'night'}</span>
         </div>
         <div style="display:flex;gap:0.5rem">
-          <button class="btn btn-outline btn-sm" onclick="shareItem('${item._id}', '${item.title.replace(/'/g, "\\'")}')">Share</button>
+          <button class="btn btn-outline btn-sm" onclick="shareItem('${item._id}', '${escapeAttr(item.title)}')">Share</button>
           ${avail > 0 && isLoggedIn()
             ? `<button class="btn btn-primary" onclick="bookItem('${item._id}')">Book Now</button>`
             : avail > 0
@@ -503,7 +514,7 @@ async function loadRecommendations() {
             <div class="card-footer">
               <span class="price">${formatPrice(item.price)}</span>
               <div style="display:flex;gap:0.5rem">
-                <button class="btn btn-outline btn-sm" onclick="shareItem('${item._id}', '${item.title.replace(/'/g, "\\'")}')">Share</button>
+                <button class="btn btn-outline btn-sm" onclick="shareItem('${item._id}', '${escapeAttr(item.title)}')">Share</button>
                 ${avail > 0
                   ? `<button class="btn btn-primary btn-sm" onclick="bookItem('${item._id}')">Book</button>`
                   : '<span class="badge badge-cancelled">Sold Out</span>'}
@@ -591,7 +602,7 @@ async function doSearch() {
           </div>
           <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap">
             <span><span class="status-dot ${statusClass}"></span>${statusText}</span>
-            <button class="btn btn-outline btn-sm" onclick="shareItem('${item._id}', '${item.title.replace(/'/g, "\\'")}')">Share</button>
+            <button class="btn btn-outline btn-sm" onclick="shareItem('${item._id}', '${escapeAttr(item.title)}')">Share</button>
             ${avail > 0 && isLoggedIn() && !isAdmin()
               ? `<button class="btn btn-primary btn-sm" onclick="bookItem('${item._id}')">Book Now</button>`
               : avail > 0 && !isLoggedIn()
@@ -1459,7 +1470,7 @@ async function loadAdminInventory() {
           ${item.isActive
             ? `<button class="btn btn-danger btn-sm" onclick="deactivateItem('${item._id}')">Deactivate</button>`
             : `<button class="btn btn-success btn-sm" onclick="activateItem('${item._id}')">Activate</button>`}
-          <button class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="deleteItem('${item._id}', '${item.title.replace(/'/g, "\\'")}')">Delete</button>
+          <button class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="deleteItem('${item._id}', '${escapeAttr(item.title)}')">Delete</button>
         </div>
       </div>
     </div>

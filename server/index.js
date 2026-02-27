@@ -78,6 +78,7 @@ const { redirectShareLink } = require('./controllers/shareController');
 
 /* Middleware */
 const { errorHandler } = require('./middleware/errorHandler');
+const { sanitize } = require('./middleware/sanitize');
 
 /* Background jobs */
 const { setupExpiryJob } = require('./jobs/bookingExpiry');
@@ -104,6 +105,9 @@ app.use(
 /* JSON body parser – limit payload size to prevent abuse */
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true }));
+
+/* Strip MongoDB operators ($gt, $ne, etc.) from user input to prevent NoSQL injection */
+app.use(sanitize);
 
 /* Serve static frontend files from /public */
 app.use(express.static(path.join(__dirname, '..', 'public')));

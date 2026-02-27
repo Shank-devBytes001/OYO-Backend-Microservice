@@ -66,7 +66,7 @@ function generateCode() {
  * ────────────────────────────────────────────────────────────
  */
 const createShareLink = asyncHandler(async (req, res) => {
-  const { inventoryId } = req.body;
+  const inventoryId = String(req.body.inventoryId || '').trim();
 
   if (!inventoryId) {
     return res.status(400).json({
@@ -75,7 +75,6 @@ const createShareLink = asyncHandler(async (req, res) => {
     });
   }
 
-  /* Verify the inventory item exists */
   const item = await Inventory.findById(inventoryId);
   if (!item) {
     return res.status(404).json({
@@ -84,8 +83,7 @@ const createShareLink = asyncHandler(async (req, res) => {
     });
   }
 
-  /* Check if a share link already exists for this item */
-  let shareLink = await ShareLink.findOne({ inventoryId });
+  let shareLink = await ShareLink.findOne({ inventoryId: item._id });
 
   if (!shareLink) {
     /*

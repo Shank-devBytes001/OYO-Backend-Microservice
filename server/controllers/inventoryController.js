@@ -69,14 +69,17 @@ const create = asyncHandler(async (req, res) => {
  * ────────────────────────────────────────────────────────────
  */
 const list = asyncHandler(async (req, res) => {
-  const { type, page = 1, limit = 20 } = req.query;
+  const page = Math.max(1, parseInt(req.query.page) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+  const type = ['flight', 'hotel'].includes(req.query.type) ? req.query.type : undefined;
+
   const filter = {};
   if (type) filter.type = type;
 
   const skip = (page - 1) * limit;
 
   const [items, total] = await Promise.all([
-    Inventory.find(filter).sort({ createdAt: -1 }).skip(skip).limit(Number(limit)),
+    Inventory.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
     Inventory.countDocuments(filter),
   ]);
 
@@ -85,7 +88,7 @@ const list = asyncHandler(async (req, res) => {
     data: {
       items,
       total,
-      page: Number(page),
+      page,
       pages: Math.ceil(total / limit),
     },
   });
@@ -114,10 +117,18 @@ const getById = asyncHandler(async (req, res) => {
  * ────────────────────────────────────────────────────────────
  */
 const update = asyncHandler(async (req, res) => {
-  /* Prevent manual manipulation of the booking-critical field */
-  delete req.body.availableUnits;
+  const allowedFields = [
+    'title', 'description', 'category', 'price', 'totalUnits',
+    'origin', 'destination', 'airline', 'flightNumber',
+    'departureDate', 'arrivalDate', 'location',
+    'checkInDate', 'checkOutDate', 'amenities', 'isActive',
+  ];
+  const updates = {};
+  for (const field of allowedFields) {
+    if (req.body[field] !== undefined) updates[field] = req.body[field];
+  }
 
-  const item = await Inventory.findByIdAndUpdate(req.params.id, req.body, {
+  const item = await Inventory.findByIdAndUpdate(req.params.id, updates, {
     new: true,
     runValidators: true,
   });

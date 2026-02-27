@@ -48,7 +48,8 @@ const { asyncHandler } = require('../middleware/errorHandler');
  * ────────────────────────────────────────────────────────────
  */
 const register = asyncHandler(async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, password, role } = req.body;
+  const email = String(req.body.email || '').toLowerCase().trim();
 
   /* Check if email already taken */
   const existing = await User.findOne({ email });
@@ -92,7 +93,8 @@ const register = asyncHandler(async (req, res) => {
  * ────────────────────────────────────────────────────────────
  */
 const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { password } = req.body;
+  const email = String(req.body.email || '').toLowerCase().trim();
 
   if (!email || !password) {
     return res.status(400).json({
@@ -101,10 +103,6 @@ const login = asyncHandler(async (req, res) => {
     });
   }
 
-  /*
-   * Use +password to explicitly include the password field
-   * which is excluded by default (select: false in schema).
-   */
   const user = await User.findOne({ email }).select('+password');
 
   if (!user || !(await user.comparePassword(password))) {

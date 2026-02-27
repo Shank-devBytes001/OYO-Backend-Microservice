@@ -58,8 +58,7 @@ const HOLD_PREFIX = 'booking_hold:';
  * ────────────────────────────────────────────────────────────
  */
 async function createBooking(userId, inventoryId, quantity = 1) {
-  /* 1. Fetch inventory for price snapshot */
-  const item = await Inventory.findById(inventoryId);
+  const item = await Inventory.findById(String(inventoryId));
   if (!item || !item.isActive) {
     const err = new Error('Inventory item not found or inactive');
     err.statusCode = 404;

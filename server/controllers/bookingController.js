@@ -103,8 +103,11 @@ const getAllBookings = asyncHandler(async (req, res) => {
   const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
   const skip = (page - 1) * limit;
 
+  const validStatuses = Object.values(Booking.STATES);
   const filter = {};
-  if (req.query.status) filter.status = req.query.status;
+  if (req.query.status && validStatuses.includes(String(req.query.status))) {
+    filter.status = String(req.query.status);
+  }
 
   const [bookings, total] = await Promise.all([
     Booking.find(filter)

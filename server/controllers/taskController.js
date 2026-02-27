@@ -43,7 +43,9 @@ const { asyncHandler } = require('../middleware/errorHandler');
  * ────────────────────────────────────────────────────────────
  */
 const create = asyncHandler(async (req, res) => {
-  const { bookingId, title, description, dueDate, priority } = req.body;
+  const bookingId = String(req.body.bookingId || '').trim();
+  const title = String(req.body.title || '').trim();
+  const { description, dueDate, priority } = req.body;
 
   if (!bookingId || !title) {
     return res.status(400).json({
@@ -52,7 +54,6 @@ const create = asyncHandler(async (req, res) => {
     });
   }
 
-  /* Verify the booking exists and belongs to this user */
   const booking = await Booking.findById(bookingId);
   if (!booking) {
     return res.status(404).json({
@@ -95,7 +96,7 @@ const create = asyncHandler(async (req, res) => {
  */
 const list = asyncHandler(async (req, res) => {
   const filter = { userId: req.user.userId };
-  if (req.query.bookingId) filter.bookingId = req.query.bookingId;
+  if (req.query.bookingId) filter.bookingId = String(req.query.bookingId);
 
   const tasks = await Task.find(filter)
     .populate('bookingId', 'status inventoryId')

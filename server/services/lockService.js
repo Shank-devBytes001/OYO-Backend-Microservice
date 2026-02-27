@@ -136,8 +136,11 @@ async function releaseLock(inventoryId, lockToken) {
  * ────────────────────────────────────────────────────────────
  */
 async function acquireAndDecrement(inventoryId, quantity = 1) {
+  const safeId = String(inventoryId);
+  const safeQty = Math.max(1, parseInt(quantity) || 1);
+
   /* ── Step 1: Pessimistic lock via Redis ─────────────────── */
-  const lockToken = await acquireLock(inventoryId);
+  const lockToken = await acquireLock(safeId);
 
   if (!lockToken) {
     const err = new Error(
@@ -151,12 +154,12 @@ async function acquireAndDecrement(inventoryId, quantity = 1) {
     /* ── Step 2: Optimistic atomic decrement via MongoDB ───── */
     const updated = await Inventory.findOneAndUpdate(
       {
-        _id: inventoryId,
-        availableUnits: { $gte: quantity }, // Guard: enough stock
-        isActive: true,                     // Item not disabled
+        _id: safeId,
+        availableUnits: { $gte: safeQty },
+        isActive: true,
       },
       {
-        $inc: { availableUnits: -quantity },
+        $inc: { availableUnits: -safeQty },
       },
       { new: true } // Return the UPDATED document
     );
@@ -172,7 +175,7 @@ async function acquireAndDecrement(inventoryId, quantity = 1) {
     return updated;
   } finally {
     /* ── Step 3: ALWAYS release the lock, even on error ───── */
-    await releaseLock(inventoryId, lockToken);
+    await releaseLock(safeId, lockToken);
   }
 }
 
@@ -186,8 +189,8 @@ async function acquireAndDecrement(inventoryId, quantity = 1) {
  * ────────────────────────────────────────────────────────────
  */
 async function restoreUnits(inventoryId, quantity = 1) {
-  await Inventory.findByIdAndUpdate(inventoryId, {
-    $inc: { availableUnits: quantity },
+  await Inventory.findByIdAndUpdate(String(inventoryId), {
+    $inc: { availableUnits: Math.max(1, parseInt(quantity) || 1) },
   });
 }
 
