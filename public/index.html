@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Global Booking Engine</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <!-- Inter font for clean modern typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════
+       NAVIGATION BAR
+       Shows different links based on auth state.
+       Connected to: app.js → renderNav()
+       ═══════════════════════════════════════════════════════ -->
+  <nav id="navbar">
+    <div class="nav-brand">✈ Global Booking Engine</div>
+    <div class="nav-links" id="nav-links"></div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════
+       NOTIFICATION TOAST
+       Shows success/error messages. Auto-dismisses after 4s.
+       Connected to: app.js → showToast()
+       ═══════════════════════════════════════════════════════ -->
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       MAIN CONTENT AREA
+       All "pages" are rendered here dynamically by the SPA
+       router in app.js. Only one view is visible at a time.
+       ═══════════════════════════════════════════════════════ -->
+  <main id="app" class="container"></main>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
